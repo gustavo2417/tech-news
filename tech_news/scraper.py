@@ -31,12 +31,38 @@ def scrape_updates(html_content):
 
 # Requisito 3
 def scrape_next_page_link(html_content):
-    """Seu código deve vir aqui"""
+    if len(html_content) < 1:
+        return None
+
+    soup = BeautifulSoup(html_content, "html.parser")
+    link = soup.find("a", {"class": "next page-numbers"})["href"]
+
+    return link
 
 
 # Requisito 4
 def scrape_news(html_content):
-    """Seu código deve vir aqui"""
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    link = soup.find("link", {"rel": "canonical"})["href"]
+    title = soup.find("h1", {"class": "entry-title"}).text.strip()
+    timestamp = soup.find("li", {"class": "meta-date"}).text
+    author = soup.find("a", {"class": "url fn n"}).text
+    time_read = soup.find("li", {"class": "meta-reading-time"}).text.split()[0]
+    summary = soup.find("div", {"class": "entry-content"}).p.text.strip()
+    category = soup.find("span", {"class": "label"}).text
+
+    result = {
+        "url": link,
+        "title":  title,
+        "timestamp": timestamp,
+        "writer": author,
+        "reading_time": int(time_read),
+        "summary": summary,
+        "category": category
+    }
+
+    return result
 
 
 # Requisito 5
