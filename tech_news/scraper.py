@@ -1,6 +1,7 @@
 import requests
 import time
 from bs4 import BeautifulSoup
+from tech_news.database import create_news
 
 
 # Requisito 1
@@ -37,7 +38,10 @@ def scrape_next_page_link(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
     link = soup.find("a", {"class": "next page-numbers"})["href"]
 
-    return link
+    if link is not None:
+        return link
+
+    return None
 
 
 # Requisito 4
@@ -67,4 +71,19 @@ def scrape_news(html_content):
 
 # Requisito 5
 def get_tech_news(amount):
-    """Seu código deve vir aqui"""
+    url = "https://blog.betrybe.com"
+    all_news = []
+    while len(all_news) < amount:
+        page = fetch(url)
+        all_links = scrape_updates(page)
+        for link in all_links:
+            if len(all_news) < amount:
+                new_page = fetch(link)
+                news = scrape_news(new_page)
+                all_news.append(news)
+        next_page = scrape_next_page_link(page)
+        url = next_page
+
+    create_news(all_news)
+
+    return all_news
